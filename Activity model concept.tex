@@ -77,11 +77,11 @@ These activity-based models greatly contribute to air pollution exposure assessm
 
 \begin{enumerate}
     
-    \item \textbf{Not for long-term activities}. They have focused on simulating hourly activities but fall short at quantifying the exposures variation over longer times, which do not consider irregular events or holidays. 
+    \item \textit{Not for long-term activities}. They have focused on simulating hourly activities but fall short at quantifying the exposures variation over longer times, which do not consider irregular events or holidays. 
     
-    \item \textbf{Not scalable}. They depend heavily on the representative survey sampling of the real activities. Simulations for demographic and socioeconomic groups \citep{lee2013impact} can greatly reduce model uncertainty and improve prediction accuracy.   
+    \item \textit{Not scalable}. They depend heavily on the representative survey sampling of the real activities. Simulations for demographic and socioeconomic groups \citep{lee2013impact} can greatly reduce model uncertainty and improve prediction accuracy.   
     
-    \item \textbf{No comprehensive uncertainty quantification}. An uncertainty quantification for each activity, including time schedules, travel means, and possible destination locations, is lacking.  
+    \item \textit{No comprehensive uncertainty quantification}. An uncertainty quantification for each activity, including time schedules, travel means, and possible destination locations, is lacking.  
 \end{enumerate}
  
  The first and third limitations in the list are raised in a framework developed in \cite{lu2019activity}. However, \cite{lu2019activity} assumes no activity information is available and therefore does not evaluate real-life cases where national micro-census data is commonly available and can provide important information about human activity patterns.  
@@ -112,7 +112,7 @@ The rest of the manuscript is organised as follows: to make it concrete,  \cref{
 
 \section{Data}
 \label{sec:data} 
-We used a long-term Dutch national travel survey, OViN (2010 - 2017, followed by OVG and MON)) to demonstrate the parameterisation of each module of the model. . OViN is collected by Statistics Netherlands (in Dutch: Centraal Bureau voor de Statistiek - CBS) for one-day trip-based diary. It consists of 0.3 of the Dutch population. 
+We used a long-term Dutch national travel survey, OViN (2010 - 2017, followed by OVG and MON)) to demonstrate the parameterisation of each module of the model. OViN is collected by Statistics Netherlands (in Dutch: Centraal Bureau voor de Statistiek - CBS) for one-day trip-based diary. It consists of 0.3 of the Dutch population. 
 %For exposure assessment we focus on the Dutch city of Utrecht.  
 
 \subsection{Data preprocessing}
@@ -136,7 +136,7 @@ Age            &                        &                                       
 \section{Human space-time activity model}
 \label{sec:model}
 
-The most important task of the human space-time activity model is to generate activity schedules for each home locations. The process is repeated several times (each repetition is called an iteration) for uncertainty quantification and improving the prediction accuracy of the exposure assessment following the framework proposed in \cite{lu2019activity}. In each interaction, the major steps are (\cref{fig:detail}):   
+The most important task of the human space-time activity model (HSTAM) is to generate activity schedules for each home locations. The process is repeated several times (each repetition is called an iteration) for uncertainty quantification and improving the prediction accuracy of the exposure assessment following the framework proposed in \cite{lu2019activity}.  In each interaction, the major steps are:   
 
 \begin{enumerate}
     \item Specify the distribution of travel distances based on the survey data if the distribution is not pre-defined. 
@@ -148,7 +148,8 @@ The most important task of the human space-time activity model is to generate ac
     \item If the previous trip is not on a road, the start time of the trip is generated with a distribution. For example, the default departure time to work in our model is sampled from a Gaussian distribution with mean 8 (i.e. 8 am) and standard deviation 0.2. 
     \item The free time activities are randomly sampled from a set of activities, for example, staying at home or take a walk. 
 \end{enumerate}
-  
+
+\Cref{fig:detail} illustrates how an activity schedule is generated. 
 
 \begin{figure}[h]
     \centering
@@ -159,10 +160,10 @@ The most important task of the human space-time activity model is to generate ac
 
 \subsection{Input and output of the model}
 
-The input of the human space-time activity model consists of 1) home locations to estimate. 2) All the possible destination locations for each destination type (e.g. all the work locations, all the school locations). 3) A table indicating the probability each travel mean is taken for different distances and for different population groups and travel purposes. 4) The distributions of the travel distances for certain population groups, either pre-defined by the user, i.e., the distribution is the input, or predicted from survey data, i.e. the survey data is the input.
+The input of the HSTAM consists of 1) home locations to estimate. 2) All the possible destination locations for each destination type (e.g. all the work locations, all the school locations). 3) A table indicating the probability each travel mean is taken for different distances and for different population groups and travel purposes. 4) The distributions of the travel distances for certain population groups, either pre-defined by the user, i.e., the distribution is the input, or predicted from survey data, i.e. the survey data is the input.
  
 
-generates activity schedules and spatial locations and tracks of the activities, for each iteration and each individual. The activity schedule consists of, for each trip, a start time, an end time, the travel mean, the duration, as well as the activity name and a corresponding code. \Cref{tab:sche} shows an example. The spatial locations of the activities, as well as the properties of trips, including the speed, means, duration of a trip, the total number of locations a destination is drawing from, are stored in the OGC GeoPackage format. The following subsections describe how the activity schedules are generated. 
+The HSTAM generates activity schedules and spatial locations and tracks of the activities, for each iteration and each individual. The activity schedule consists of, for each trip, a start time, an end time, the travel mean, the duration, as well as the activity name and a corresponding code. \Cref{tab:sche} shows an example. The spatial locations of the activities, as well as the properties of trips, including the speed, means, duration of a trip, the total number of locations a destination is drawing from, are stored in the OGC GeoPackage format. 
 
 \begin{table}[]
 \resizebox{\textwidth}{!}{%
@@ -183,7 +184,8 @@ start\_time & end\_time & activity   & activity\_code & travel\_mean          & 
 \label{tab:sche}
 \end{table}
  
-\subsection{}
+\subsection{Probabilistic components}
+This section describes the details of generating the components that are probabilistic.  
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
@@ -493,3 +495,76 @@ The method can potentially be applied to long-term, large-scale air pollution ex
 \end{tabular} 
 \end{table} 
 
+
+\subsection{Implementation}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Activities:
+  \emph{Work-day activities:} 1) home, 2) home to work, 3) work, 4) work
+  to home, 5) sports. The assumption for sports is that it occurs in the
+  morning or evening, and it occurs either 1 hour before departure to
+  work or 1 hour after come back home from work.
+
+  \emph{Weekend activity}: 1) shopping, 2) random walk 
+\item
+  A \textbf{probailistic} model: the components below are probabilistic,
+  and the distributions can come for activity surveys or literature.
+
+  1) \underline{Time schedule:} please see section 2 for the activities.
+  The departure times to work and back from home are probabilisitic. By
+  default, a gaussian distribution is used (e..g with mean 8 and
+  standard deviation 0.5 for going to work). In our implementation, the
+  distributions of departure times are fitted (characterised) from human
+  activity surveys (please see section 4 below). The distributions are
+  fitted for each population group.
+
+  2) \underline{Unknown destination locations:} For large-population
+  activity modeling, it is commonly the case that the specific
+  destination location (e.g. work location, sport centres) are unknown
+  for each individual. However, the information for the entire locations
+  (e.g. sport centres, work buildings, universities, schools) are
+  becoming more comprehensive. In many countries, this part of
+  information can be acquired from OpenStreetMaps. In this study, we
+  select potential locations by proabilisticly sampling the maximum trip
+  distance and only randomly select locations within the Euclidean
+  distance of the maximum trip distance. If there is no destination
+  points within the sampled maximum trip distance, the nearest
+  destination point is used. The number of total selected destination
+  points serve as an uncertainty indicator in the situation of unknown
+  destination locations, in each simulation run.
+
+  3) \emph{\underline{Means of commuting}} (currently: (train),
+  autovehicles (car, bus, tram), bike, on foot): are deteremined based
+  on travel distance. Based on the population group (e.g. school
+  student) and the travel purpose (to school), the probability that a
+  certain travel mean is taken is calculated (e.g. 0.3 for on foot and
+  0.6 for biking, 0.1 for taking a bus or car and 0 for others),
+  according to which a travel mode is sampled in each simulation. The
+  commuting routes are queried from OpenStreetMaps.
+
+  Note: {[}How is the train route calculated? If an agent (person) takes
+  a train, it is assumed he/she will firstly walk or cycle to the
+  nearest train station, and get off at the train station closest to the
+  destination location. (\emph{to be considered}). I intend to firstly
+  model within the Utrecht city, so all the destinations should be
+  constrained to a certain distance, therefore the mode: train has a
+  very small probability. This model may also be remove, then in
+  implementation i can simply replace train with autovehicles{]} .
+\item
+  Implementation:
+
+  Population group implemented are: school student (U17) , University
+  student (students older than 18 years old, Uni), part-time worker
+  (PW), full-time worker (FW).
+
+  There is a conceptural default implemented in our model which is
+  described in table 1. In our case-study (Utrecht) implementation, they
+  are characterised from Dutch national activity surveys (OVin). The
+  process is: 1) we select a profile (e.g. Univeristy student) and a
+  purpose (e.g. go to work), 2) we fit the distribution of the selected
+  data. 3) At each simulation, we sample one value from the
+  distribution. Specifications are described below:
+
+  \textbf{Destination location selection:}
+\end{enumerate}
