@@ -61,7 +61,7 @@
 
 \author{Meng Lu }
 \date{Feb 2021}
-\title{A human space-time activity model for assessment of personal exposure to ambient NO$_2$}
+\title{An agent-based model for human activity simulation and the assessment of personal exposure to ambient air pollution}
 
 \begin{document}
 \maketitle
@@ -69,22 +69,26 @@
 \section{Introduction}
 
 %Chronic exposure to NO$_2$ poses a threat to public health, evidence has shown the negative effects of the NO$_2$ exposure to the cardiovascular and respiratory systems \citep{luo2016acute}. Despite public health concerns urging the attenuation of the negative effect of NO$_2$, the exact relationship between NO$_2$ exposure and our health remains unsolved. 
-Ambient NO$_2$ is strongly traffic-related and shows considerable spatiotemporal variations at street levels. However, most of large-scale epidemiological studies of chronic diseases, risk assessment, the quantification of global, national, and local burden of diseases \citep{achakulwisut2019global} assess long-term health effects using annual or multi-year averaged ambient NO$_2$ concentrations at a person’s front-door home location. Studies have shown that NO$_2$ exposure assessed neglecting human space-time activities and using the concentration values at the front-door addresses as a proxy of their exposure can differ considerably from personal exposures assessed accounting for human space-time activities \citep{duan1997combination,lu2019activity,park2017individual,molter2012performance,zenk2011activity}. 
+Highly traffic-related air pollutants such as NO$_2$ show considerable spatiotemporal variations at street levels. However, to understand the long-term or chronic health effects of NO$_2$ over a relatively large population (e.g. population of a city), most of epidemiological studies took a "static approach", which approximate the exposure as temporally averaged ambient pollutant concentrations at a person’s front-door home location. The same applies to risk assessment, the quantification of global, national, and local burden of diseases \citep{achakulwisut2019global}. It is obvious that for a spatiotemporally highly variable air pollutant, personal exposures assessed neglecting space-time activities, i.e. using concentration values at the front-door addresses, can differ considerably from personal exposures assessed accounting for human space-time activities. This difference has been reflected in several studies that attempt to account for personal or population space-time activities in exposure assessment  \citep{duan1997combination,lu2019activity,park2017individual,molter2012performance,zenk2011activity}. 
 
-Several attempts are made to move from static to spatiotemporally resolved exposure assessment \citep{steinle2013quantifying} by integrating human activity models \citep{miller2003prototype, shekarrizfard2017regional, deffner2016personal,gulliver2005time,dons2011impact}. The input of these human activity models is commonly diary surveys consisting of locations visited and origin-destination schedules. Then, the activity model estimates a continuous-time mobility track for each individual basing on the general rules of human mobility patterns and space-time accessibility \citep{nguyen2011steps,gonzalez2008understanding,yang2010using,yu2006spatio,alessandretti2017multi,miller1991modelling}. Each route simulated can be contingent on, for instance, distance, safety, city infrastructure, and land use \citep{law2014measuring}. Among these studies, \cite{beckx2009dynamic} applied an activity model \citep{ALBATROSS} to simulate human hourly activities, but the exposures during the commuting times are not calculated along the routes. \cite{shekarrizfard2017regional} assigned the predictions of a travel demand model to a road network to predict a person's hourly trajectories. For each person, the model selects a path from all possible paths by comparing the assigned travel time and the survey travel time. 
+Recent studies attempting to account for space-time activities in exposure assessment over a long-term and a relatively large population commonly integrate activity models (including transportation models). The pioneered work of \cite{beckx2009dynamic} proposed to use the activity-based model to simulate hourly activities and then combine with an air dispersion model to assess exposure. \cite{beckx2009dynamic} applies an activity model called ALBATROSS \citep{ALBATROSS}, which is a transportation oriented system that simulates activities for the entire population based on activity diary data and dynamic constrains on scheduling decisions. Following this approach, a wide variety of activity models could be applied to understand human activity patterns \citep{w2016multi,miller2003prototype, shekarrizfard2017regional, deffner2016personal,gulliver2005time,dons2011impact}. These models consider a comprehensive set of space-time activity characters such as different travel means, work, education, and leisure activities, traffics \citep{w2016multi}. They are commonly parameterised by diary surveys consisting of locations visited and origin-destination schedules and estimate a continuous-time mobility track for each individual basing on general rules of human mobility patterns and space-time accessibility \citep{nguyen2011steps,gonzalez2008understanding,yang2010using,yu2006spatio,alessandretti2017multi,miller1991modelling}. Each route simulated can be contingent on, for instance, distance, safety, city infrastructure, and land use \citep{law2014measuring}. For example, \cite{shekarrizfard2017regional} assigned the predictions of a travel demand model to a road network to predict a person's hourly trajectories. For each person, the model selects a path from all possible paths by comparing the assigned travel time and the survey travel time. 
 
-These activity-based models greatly contribute to air pollution exposure assessment in general; however, as they are not designed explicitly for exposure assessment, most of them possess the characteristics listed below that hinder their applications in exposure assessment: 
+%Several attempts are made to move from static to spatiotemporally resolved exposure assessment  by   
+
+Though activity-based models are tremendously useful in simulating human activities, their integration into a personal exposure assessment framework need to be developed to address the following challenges.  
 
 \begin{enumerate}
     
-    \item \textit{Not for long-term activities}. They have focused on simulating hourly activities but fall short at quantifying the exposures variation over longer times, which do not consider irregular events or holidays. 
+    \item \textit{Long-term simulation}. Current models have focused on simulating hourly activities but fall short at quantifying the exposures variation over longer times, which do not consider irregular events or holidays. 
     
-    \item \textit{Not scalable}. They depend heavily on the representative survey sampling of the real activities. Simulations for demographic and socioeconomic groups \citep{lee2013impact} can greatly reduce model uncertainty and improve prediction accuracy.   
+    %\item \textit{Dynamically assimilating activity data}. Current models depend heavily on the representative survey sampling of the real activities. %Simulations for demographic and socioeconomic groups \citep{lee2013impact} can greatly reduce model uncertainty and improve prediction accuracy.   
     
-    \item \textit{No comprehensive uncertainty quantification}. An uncertainty quantification for each activity, including time schedules, travel means, and possible destination locations, is lacking.  
+    \item \textit{Comprehensive uncertainty quantification}. An uncertainty quantification for each activity, including time schedules, travel means, and possible destination locations.
+    
+    \item \textit{Separating between population subgroups}. The health impacts of air pollution exposure subjects to a variety of confounders such as age, gender, and living habits. Many of these health research confounders (e.g. age) are closely related to certain space-time behaviours.  
 \end{enumerate}
  
- The first and third limitations in the list are raised in a framework developed in \cite{lu2019activity}. However, \cite{lu2019activity} assumes no activity information is available and therefore does not evaluate real-life cases where national micro-census data is commonly available and can provide important information about human activity patterns.  
+The framework developed in \cite{lu2019activity} attempts to address the first and second limitations. However, it assumes no activity information is available and therefore does not evaluate real-life cases where national micro-census data is commonly available and can provide important information about human activity patterns.  
  
 We greatly extend from \cite{lu2019activity} to develop a novel human space-time activity model explicitly for exposure assessment to address the above-mentioned limitations. Our objective is to develop a model with the following features: 
 
@@ -110,6 +114,7 @@ We demonstrate our activity model and exposure assessment model predictions in t
 
 The rest of the manuscript is organised as follows: to make it concrete,  \cref{sec:data} describes the the micro-census data we used to parameterise our model. Then, we describe our space-time activity model in \cref{sec:model} and follows with the exposure assessment model in \cref{sec:exp}. \Cref{sec:result} shows the results in our study case. \Cref{sec:dis} discuss our models and the results. \Cref{sec:con} closes with a conclusion.
 
+
 \section{Data}
 \label{sec:data} 
 We used a long-term Dutch national travel survey, OViN (2010 - 2017, followed by OVG and MON)) to demonstrate the parameterisation of each module of the model. OViN is collected by Statistics Netherlands (in Dutch: Centraal Bureau voor de Statistiek - CBS) for one-day trip-based diary. It consists of 0.3 of the Dutch population. 
@@ -119,7 +124,7 @@ We used a long-term Dutch national travel survey, OViN (2010 - 2017, followed by
 The original data of the following variables are in text, we parsed the text data to extract the range of the data and calculate a mean of the data range. The variables, their original text, and generated variables are listed below.
 % Please add the following required packages to your document preamble:
  
- 
+
 \begin{table}[!h]
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{l|l|l|l|l|l}
@@ -151,10 +156,10 @@ The most important task of the human space-time activity model (HSTAM) is to gen
 
 \Cref{fig:detail} illustrates how an activity schedule is generated. 
 
-\begin{figure}[h]
+\begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{figure/detail.png}
-    \caption{Procedure of generating activity schedules using the human space-time activity model}
+    \includegraphics[width=\linewidth]{figure/scheduleflow_noenrich.pdf}
+  \caption{Procedure of generating activity schedules using the human space-time activity model}
     \label{fig:detail}
 \end{figure}
 
@@ -292,6 +297,7 @@ This section describes the details of generating the components that are probabi
 
 \subsection{Activity modeling using Ovin}
 The example below shows how we model the profile group: school student (U17). The activities considered are 1) going to school, 2) staying at school, 3) going back home, 4) going to a sport center, 5) going back home.  
+
 
 %Firstly, we characterise the distribution of the distances between home location and a work location. 
 \textbf{Selecting the locations of school and sport centres.}
@@ -432,6 +438,7 @@ A example of exposure assessed using the model, for one of the activities: home 
     \caption{Exposure assessed for the population group "University students", it can be observed that high exposures do not necessarily occur for people with high concentrations on home locations. Background: annual mean NO$_2$ predictions.}
     \label{sims}
 \end{figure}
+
 
 
 \section{Discussion}
