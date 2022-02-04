@@ -88,17 +88,18 @@ As measured activity data is hardly both over a long-term (e.g. a year or more) 
 Integrating activity simulation models with predicted air pollution appear to be a solution to account for human space-time activities in exposure assessment. This has been reflected in several exposure studies \citep{shekarrizfard2017regional,deffner2016personal,gulliver2005time,dons2011impact}. A pioneered work is \cite{beckx2009dynamic}, who proposed to use the ALBATROSS to simulate hourly activities and then combine with an air dispersion model to assess exposure. However, none of these studies address long-term, uncertainty-quantified exposure assessment and for sub-populations. Specifically, \textit{long-term simulation} means the model is capable of quantifying exposure variations over longer times. \textit{Uncertainty} needs to be quantified for each simulated activity, including time schedules, travel modes, and possible destination locations. Separating \textit{sub population} groups allows more accurate simulation of their activities, as people's activity patterns may be clustered by their socio-economical status such as education, age, and occupation status. In another mindset, the confounders in health impacts studies such as age, gender, and living habits relate to certain space-time behaviours, but we only want to remove the effects of these confounders in health studies but not in exposure assessment, and this requires exposure assessment of sub-populations.  
 %, which lead to bias in exposure assessment and thus the health study.
 
-These three current limitations call for activity simulation models that are explicitly designed designed for exposure assessment. The framework developed in \cite{lu2019activity} attempts to address the first and second limitations. However, it assumes no activity information is available and therefore does consider population subgroups in real-life cases. We greatly extend from \cite{lu2019activity} to a new model which derives distributions of activity variables, namely travel modes and maximum travel distances, from national micro-census data. The new model is able to simulate closer to real-life exposures and greatly reduces uncertainty. The model comes with the following features: 
+These three current limitations call for activity simulation models that are explicitly designed designed for exposure assessment. The framework developed in \cite{lu2019activity} attempts to address the first and second limitations. However, it assumes no activity information is available and therefore does consider population subgroups in real-life cases. We greatly extend from \cite{lu2019activity} to a new model which derives distributions of activity variables, namely travel modes and maximum travel distances, from national micro-census data. The new model is able to simulate closer to real-life exposures and greatly reduces uncertainty. The model has the following features: 
 
 \begin{enumerate}
-
-    \item Estimating or empirically specifying probability distributions for each activity, including for example departure time, travel means, possible destinations. The estimation can base on micro-census surveys using statistical modeling.
+    \item Allowing flexible inclusion of irregular (e.g. holiday) activity schedules for long-term exposure modeling. 
+    
     %\item The model can conveniently assimilate any other activity-related data, using either statistical modeling or . 
+    
+    \item Estimating or empirically specifying probability distributions for each activity based on  mobility surveys using statistical modeling for different population groups. 
     
     \item Sampling from the specified or estimated distributions repeatedly for uncertainty quantification and more accurate estimation of exposures through ensembling. 
     
-    \item Allowing flexible inclusion of irregular (e.g. holiday) activity schedules for long-term exposure modeling, 
-    
+         
 \end{enumerate}
 
 With this novel space-time activity model as the core component, we develop an activity-based NO$_2$ exposure assessment model consists of additionally an exposure assessment module and a temporal air pollution mapping module. The exposure assessment module takes output of the activity model, namely activity schedules and spatial locations of the activities (e.g. work locations, trip routes), and hourly NO$_2$ maps from the temporal air pollution mapping module to assess NO$_2$ exposures from each home location (\cref{fig:expflow}).     
@@ -106,12 +107,13 @@ With this novel space-time activity model as the core component, we develop an a
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{figure/exposureflow.png}
-    \caption{The structure of our exposure assessment model. At the core is our agent-based human space-time activity model. ABM: agent-based modelling. }
+    \caption{The structure of our exposure assessment model. At the core is the agent-based human space-time activity model. ABM: agent-based modelling. }
     \label{fig:expflow}
 \end{figure}
-We demonstrate our activity model and exposure assessment model predictions in the Dutch city of Utrecht, for the population group university students.  
 
-We follow the ODD (Overview, Design concepts, and Details) protocol \citep[][page 37,]{railsback2019agent} to describe our agent-based model. The OOD of our model is given in \cref{sec:model}, which follows with the exposure assessment model (statistical model in \cref{sec:exp}). Then, we demonstrate the modelling process with a study case (\cref{sec:case}) implemented with the Dutch national microcensus data. %\Cref{sec:result} shows the results in our study case. \Cref{sec:dis} discuss our models and the results. \Cref{sec:con} closes with a conclusion.
+
+
+We follow the ODD (Overview, Design concepts, and Details) protocol \citep[][page 37,]{railsback2019agent} to describe our agent-based model. The OOD of our model is given in \cref{sec:model}, which follows with the exposure assessment model (statistical model in \cref{sec:exp}). Then, we demonstrate the modelling process for exposure assessment in a study case (\cref{sec:case}). The activity model is implemented with the Dutch national microcensus data and the exposure is assessed in the Dutch city of Utrecht, for the population group university student.  %\Cref{sec:result} shows the results in our study case. \Cref{sec:dis} discuss our models and the results. \Cref{sec:con} closes with a conclusion.
 
 
 \section{Model overview and design concepts }
