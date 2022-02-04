@@ -10,6 +10,7 @@
  
  \usepackage[round]{natbib}
 \usepackage{lmodern}
+
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
 \usepackage{fixltx2e} % provides \textsubscript
@@ -19,6 +20,9 @@
   \usepackage{textcomp} % provides euro and other symbols
 \else % if luatex or xelatex
   \usepackage{unicode-math}
+  
+  \usepackage{hyperref}
+  \usepackage{cleveref}
   \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
 \fi
 % use upquote if available, for straight quotes in verbatim environments
@@ -60,46 +64,41 @@
 
 
 \author{Meng Lu }
-\date{Feb 2021}
+%date{Feb 2021}
 \title{An agent-based model for human activity simulation and the assessment of personal exposure to ambient air pollution}
-
 \begin{document}
 \maketitle
+\begin{abstract}
+ 
+ Long-term exposure assessment to spatiotemporally highly variable air pollutants requires accounting for human space-time activity behaviours. Current advancement in activity-based exposure assessment are either buffer-based, which is achieved through different level of spatial aggregation, or are agent-based, such as those integrating with transportation models. which are commonly parameterised using activity diaries. The advantage of using an agent-based approach in flexibly representing space-time activities is obvious. However, for the current agent-based models, there is a trade-off between the simulation accuracy and the ability of the model to scale to long-term, large population simulation, and separating between different population groups based on their socio-economical profiles. This trade-off is what the proposed agent-based model attempt to bridge. We develop an agent-based model specific for air pollution exposure assessment and explicitly account for uncertainty from activities through representing different activities and possible locations as random variables, which enable repeated random sampling. As the model does not rely on detailed GPS tracks or mobile diary surveys but any statistical mobility data, the model is applicable to different scales, as well as for large sub-population groups and long-term exposure assessment. The model consists of three independent components: an activity simulation component, an optional air pollution prediction component, and an exposure assessment component that aggregates air pollution over the simulated space-time path based on the simulated activity schedules and the local environment of the locations. We demonstrate our model with the Dutch national mobile microcensus and high-resolution annually-average hourly NO$_2$ predicted from national ground stations. 
+
+% in future, choose ABM dependsing on spatiotemporal variability of AP
+% large-scale ABM with density functions. 
+\end{abstract}
+
  
 \section{Introduction}
 
 %Chronic exposure to NO$_2$ poses a threat to public health, evidence has shown the negative effects of the NO$_2$ exposure to the cardiovascular and respiratory systems \citep{luo2016acute}. Despite public health concerns urging the attenuation of the negative effect of NO$_2$, the exact relationship between NO$_2$ exposure and our health remains unsolved. 
-Highly traffic-related air pollutants such as NO$_2$ show considerable spatiotemporal variations at street levels. However, to understand the long-term or chronic health effects of NO$_2$ over a relatively large population (e.g. population of a city), most of epidemiological studies took a "static approach", which approximate the exposure as temporally averaged ambient pollutant concentrations at a person’s front-door home location. The same applies to risk assessment, the quantification of global, national, and local burden of diseases \citep{achakulwisut2019global}. It is obvious that for a spatiotemporally highly variable air pollutant, personal exposures assessed neglecting space-time activities, i.e. using concentration values at the front-door addresses, can differ considerably from personal exposures assessed accounting for human space-time activities. This difference has been reflected in several studies that attempt to account for personal or population space-time activities in exposure assessment  \citep{duan1997combination,lu2019activity,park2017individual,molter2012performance,zenk2011activity}. 
+Highly traffic-related air pollutants such as NO$_2$ show considerable spatiotemporal variations at street levels. However, to understand the long-term or chronic health effects of NO$_2$ over a relatively large population (e.g. population of a city), most of epidemiological studies took a "static approach", which approximate the exposure as temporally averaged ambient pollutant concentrations at a person’s front-door home location. The same applies to risk assessment, the quantification of global, national, and local burden of diseases \citep{achakulwisut2019global}. It has been shown in many studies that for a spatiotemporally highly variable air pollutant, personal exposures assessed neglecting space-time activities, i.e. using concentration values at the front-door addresses, can differ considerably from personal exposures assessed accounting for human space-time activities \citep{duan1997combination,lu2019activity,park2017individual,molter2012performance,zenk2011activity}. \citep{yoo2015geospatial,yoo2021impact} took a step further to understand the joint effects of spatiotemporal mapping and space-time activities on exposure assessment, using respectively simulated and measured activity data. 
 
-Recent studies attempting to account for space-time activities in exposure assessment over a long-term and a relatively large population commonly integrate activity models (including transportation models). The pioneered work of \cite{beckx2009dynamic} proposed to use the activity-based model to simulate hourly activities and then combine with an air dispersion model to assess exposure. \cite{beckx2009dynamic} applies an activity model called ALBATROSS \citep{ALBATROSS}, which is a transportation oriented system that simulates activities for the entire population based on activity diary data and dynamic constrains on scheduling decisions. Following this approach, a wide variety of activity models could be applied to understand human activity patterns \citep{w2016multi,miller2003prototype, shekarrizfard2017regional, deffner2016personal,gulliver2005time,dons2011impact}. These models consider a comprehensive set of space-time activity characters such as different travel means, work, education, and leisure activities, traffics \citep{w2016multi}. They are commonly parameterised by diary surveys consisting of locations visited and origin-destination schedules and estimate a continuous-time mobility track for each individual basing on general rules of human mobility patterns and space-time accessibility \citep{nguyen2011steps,gonzalez2008understanding,yang2010using,yu2006spatio,alessandretti2017multi,miller1991modelling}. Each route simulated can be contingent on, for instance, distance, safety, city infrastructure, and land use \citep{law2014measuring}. For example, \cite{shekarrizfard2017regional} assigned the predictions of a travel demand model to a road network to predict a person's hourly trajectories. For each person, the model selects a path from all possible paths by comparing the assigned travel time and the survey travel time. 
+As measured activity data is hardly both over a long-term (e.g. a year or more) and a large population (e.g. millions). Activity simulation (commonly known as the "modelling approach") is needed. In transportation studies, progress has been made in the development of models for simulating transportation patterns, for example, the ALBATROSS \citep{ALBATROSS} is a transportation oriented system that simulates activities for the entire population based on activity diary data and dynamic constrains on scheduling decisions. Another relatively well-known activity simulation model is MATSim\citep{w2016multi}, which focuses on large-scale, one-day individual activity simulation based on a activity schedule scoring algorithm and detailed road networks. These activity models contribute to the understanding of human activity patterns \citep{miller2003prototype}. Many of these models are open-source \citep{w2016multi} and highly customisable, which allows scenario studies. The activity models consider a comprehensive set of space-time activity characters such as different travel means, work, education, and leisure activities, traffics \citep{w2016multi}. They are commonly parameterised by diary surveys consisting of locations visited and origin-destination schedules and estimate a continuous-time mobility track for each individual basing on general rules of human mobility patterns and space-time accessibility \citep{nguyen2011steps,gonzalez2008understanding,yang2010using,yu2006spatio,alessandretti2017multi,miller1991modelling}. Each route simulated can be contingent on, for instance, distance, safety, city infrastructure, and land use \citep{law2014measuring}. For example, \cite{shekarrizfard2017regional} assigned the predictions of a travel demand model to a road network to predict a person's hourly trajectories. For each person, the model selects a path from all possible paths by comparing the assigned travel time and the survey travel time. 
 
-%Several attempts are made to move from static to spatiotemporally resolved exposure assessment  by   
 
-Though activity-based models are tremendously useful in simulating human activities, their integration into a personal exposure assessment framework need to be developed to address the following challenges.  
+Integrating activity simulation models with predicted air pollution appear to be a solution to account for human space-time activities in exposure assessment. This has been reflected in several exposure studies \citep{shekarrizfard2017regional,deffner2016personal,gulliver2005time,dons2011impact}. A pioneered work is \cite{beckx2009dynamic}, who proposed to use the ALBATROSS to simulate hourly activities and then combine with an air dispersion model to assess exposure. However, none of these studies address long-term, uncertainty-quantified exposure assessment and for sub-populations. Specifically, \textit{long-term simulation} means the model is capable of quantifying exposure variations over longer times. \textit{Uncertainty} needs to be quantified for each simulated activity, including time schedules, travel modes, and possible destination locations. Separating \textit{sub population} groups allows more accurate simulation of their activities, as people's activity patterns may be clustered by their socio-economical status such as education, age, and occupation status. In another mindset, the confounders in health impacts studies such as age, gender, and living habits relate to certain space-time behaviours, but we only want to remove the effects of these confounders in health studies but not in exposure assessment, and this requires exposure assessment of sub-populations.  
+%, which lead to bias in exposure assessment and thus the health study.
 
-\begin{enumerate}
-    
-    \item \textit{Long-term simulation}. Current models have focused on simulating hourly activities but fall short at quantifying the exposures variation over longer times, which do not consider irregular events or holidays. 
-    
-    %\item \textit{Dynamically assimilating activity data}. Current models depend heavily on the representative survey sampling of the real activities. %Simulations for demographic and socioeconomic groups \citep{lee2013impact} can greatly reduce model uncertainty and improve prediction accuracy.   
-    
-    \item \textit{Comprehensive uncertainty quantification}. An uncertainty quantification for each activity, including time schedules, travel means, and possible destination locations.
-    
-    \item \textit{Separating between population subgroups}. The health impacts of air pollution exposure subjects to a variety of confounders such as age, gender, and living habits. Many of these health research confounders (e.g. age) are closely related to certain space-time behaviours.  
-\end{enumerate}
- 
-The framework developed in \cite{lu2019activity} attempts to address the first and second limitations. However, it assumes no activity information is available and therefore does not evaluate real-life cases where national micro-census data is commonly available and can provide important information about human activity patterns.  
- 
-We greatly extend from \cite{lu2019activity} to develop a novel human space-time activity model explicitly for exposure assessment to address the above-mentioned limitations. Our objective is to develop a model with the following features: 
+These three current limitations call for activity simulation models that are explicitly designed designed for exposure assessment. The framework developed in \cite{lu2019activity} attempts to address the first and second limitations. However, it assumes no activity information is available and therefore does consider population subgroups in real-life cases. We greatly extend from \cite{lu2019activity} to a new model which derives distributions of activity variables, namely travel modes and maximum travel distances, from national micro-census data. The new model is able to simulate closer to real-life exposures and greatly reduces uncertainty. The model comes with the following features: 
 
 \begin{enumerate}
 
-    \item Allowing flexible inclusion of irregular (e.g. holiday) activity schedules for long-term exposure modeling, 
-    
     \item Estimating or empirically specifying probability distributions for each activity, including for example departure time, travel means, possible destinations. The estimation can base on micro-census surveys using statistical modeling.
     %\item The model can conveniently assimilate any other activity-related data, using either statistical modeling or . 
     
     \item Sampling from the specified or estimated distributions repeatedly for uncertainty quantification and more accurate estimation of exposures through ensembling. 
+    
+    \item Allowing flexible inclusion of irregular (e.g. holiday) activity schedules for long-term exposure modeling, 
+    
 \end{enumerate}
 
 With this novel space-time activity model as the core component, we develop an activity-based NO$_2$ exposure assessment model consists of additionally an exposure assessment module and a temporal air pollution mapping module. The exposure assessment module takes output of the activity model, namely activity schedules and spatial locations of the activities (e.g. work locations, trip routes), and hourly NO$_2$ maps from the temporal air pollution mapping module to assess NO$_2$ exposures from each home location (\cref{fig:expflow}).     
@@ -112,36 +111,29 @@ With this novel space-time activity model as the core component, we develop an a
 \end{figure}
 We demonstrate our activity model and exposure assessment model predictions in the Dutch city of Utrecht, for the population group university students.  
 
-The rest of the manuscript is organised as follows: to make it concrete,  \cref{sec:data} describes the the micro-census data we used to parameterise our model. Then, we describe our space-time activity model in \cref{sec:model} and follows with the exposure assessment model in \cref{sec:exp}. \Cref{sec:result} shows the results in our study case. \Cref{sec:dis} discuss our models and the results. \Cref{sec:con} closes with a conclusion.
+We follow the ODD (Overview, Design concepts, and Details) protocol \citep[][page 37,]{railsback2019agent} to describe our agent-based model. The OOD of our model is given in \cref{sec:model}, which follows with the exposure assessment model (statistical model in \cref{sec:exp}). Then, we demonstrate the modelling process with a study case (\cref{sec:case}) implemented with the Dutch national microcensus data. %\Cref{sec:result} shows the results in our study case. \Cref{sec:dis} discuss our models and the results. \Cref{sec:con} closes with a conclusion.
 
 
-\section{Data}
-\label{sec:data} 
-We used a long-term Dutch national travel survey, OViN (2010 - 2017, followed by OVG and MON)) to demonstrate the parameterisation of each module of the model. OViN is collected by Statistics Netherlands (in Dutch: Centraal Bureau voor de Statistiek - CBS) for one-day trip-based diary. It consists of 0.3 of the Dutch population. 
-%For exposure assessment we focus on the Dutch city of Utrecht.  
-
-\subsection{Data preprocessing}
-The original data of the following variables are in text, we parsed the text data to extract the range of the data and calculate a mean of the data range. The variables, their original text, and generated variables are listed below.
-% Please add the following required packages to your document preamble:
- 
-
-\begin{table}[!h]
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{l|l|l|l|l|l}
-\hline
-Variable       & original variable name & \begin{tabular}[c]{@{}l@{}}example of the \\ variable content\end{tabular}                           & new variables                                                                     & \begin{tabular}[c]{@{}l@{}}new \\ variable\\  value\end{tabular} & note                                                                                                                                                              \\ \hline
-Trip distances & KAfstR                 & \begin{tabular}[c]{@{}l@{}}"5,0 tot 7,5 km"\\ "50 km of meer"\\ "Geen rit in Nederland"\end{tabular} & \begin{tabular}[c]{@{}l@{}}KAf\_low\\ KAf\_mean\\ KAf\_high\end{tabular} & \begin{tabular}[c]{@{}l@{}}5\\ 6.25\\ 7\end{tabular}             & \begin{tabular}[c]{@{}l@{}}"geen rit in\\  Nederland" \\ means the trip \\ is not in the \\ Netherlands \\ and is not \\ considered \\ in this study\end{tabular} \\ \hline
-Income         &                        &                                                                                                      &                                                                                   &                                                                  &                                                                                                                                                                   \\ \hline
-Age            &                        &                                                                                                      &                                                                                   &                                                                  &                                                                                                                                                                   \\ \hline
-...            &                        &                                                                                                      &                                                                                   &                                                                  &                                                                                                                                                                   \\ \hline
-\end{tabular}%
-}
-\end{table}
-
-\section{Human space-time activity model}
+\section{Model overview and design concepts }
 \label{sec:model}
 
-The most important task of the human space-time activity model (HSTAM) is to generate activity schedules for each home locations. The process is repeated several times (each repetition is called an iteration) for uncertainty quantification and improving the prediction accuracy of the exposure assessment following the framework proposed in \cite{lu2019activity}.  In each interaction, the major steps are:   
+\subsection{Overview} 
+
+\textbf{Purpose}:
+The model is developed for large population-scale (e.g. The entire population of the Netherlands), long-term, personal air quality exposure assessment accounting for human space-time activities. For this purpose, the model has three key features:
+1) can simulating long-term behaviours with abnormal events (e.g. holidays),
+2) explicitly assess uncertainty as human space-time activities commonly subject to high uncertainties.
+3) can separate between population subgroups (e.g. with their age, sex, occupation status).
+
+As the model is for large scale, we focus on deriving information from activity micro-survey data, in contrast to activity diaries and GPS tracks. These data may be employed for validation purposes. At a later stage, these data will be involved to dynamically improve the model.   
+
+\textbf{Entities, state variables, and scales}:
+
+The entities are each residence. The state variables include age, gender, occupation, income, working status (e.g. full-time worker or not), having children or not, having a car or not, and possibly other socioeconomical and environmental variables. The model is designed for long-term (one year or longer) exposure assessment over a population, focusing on a scale where land transportation (e.g. cars, bikes, on food) are the major commuting means. 
+
+\textbf{Process overview}:
+
+The most important task of the human space-time activity model (HSTAM) is to generate activity schedules (\cref{fig:detail}) for each home locations. The process is repeated several times (each repetition is called an iteration) for uncertainty quantification and improving the prediction accuracy of the exposure assessment.  In each interaction, the major steps are:   
 
 \begin{enumerate}
     \item Specify the distribution of travel distances based on the survey data if the distribution is not pre-defined. 
@@ -163,7 +155,12 @@ The most important task of the human space-time activity model (HSTAM) is to gen
     \label{fig:detail}
 \end{figure}
 
-\subsection{Input and output of the model}
+\subsection{Design concepts}
+The basic concept of the proposed model is the travel behaviour simulation. The simulation is based on probability distributions of agents' travel mode, maximum travel range, classified by their socio-economic status. The distributions are derived from microcensus data. By the probabilistic nature, stochasticity is used. In each iteration, the departure time of an activity , travel mode, maximum travel distance, possible destination locations, and the free-time activities may all change. This allows uncertainty quantification as well as a more accurate estimation of long-term behaviour through averaging. 
+
+
+\subsection{Model Details}
+\subsubsection{Input and output of the model}
 
 The input of the HSTAM consists of 1) home locations to estimate. 2) All the possible destination locations for each destination type (e.g. all the work locations, all the school locations). 3) A table indicating the probability each travel mean is taken for different distances and for different population groups and travel purposes. 4) The distributions of the travel distances for certain population groups, either pre-defined by the user, i.e., the distribution is the input, or predicted from survey data, i.e. the survey data is the input.
  
@@ -189,8 +186,32 @@ start\_time & end\_time & activity   & activity\_code & travel\_mean          & 
 \label{tab:sche}
 \end{table}
  
-\subsection{Probabilistic components}
-This section describes the details of generating the components that are probabilistic.  
+ 
+
+
+\subsubsection{A built-in dataset}
+\label{sec:data} 
+For demonstrating the parameterisation of each module of the model, and for guiding the application of the models, we include a dataset in the model. The dataset origins from the long-term Dutch national travel survey, OViN (2010 - 2017, followed by OVG and MON)). OViN is collected by Statistics Netherlands (in Dutch: Centraal Bureau voor de Statistiek - CBS) for one-day trip-based diary. It consists of 0.3 of the Dutch population. The preprocessing of the dataset includes parsing the text of variables (as shown in \cref{preprocess}) to extract the range of the data and calculate a mean of the data range. The variables, their original text, and generated variables are listed in \cref{preprocess}.
+% Please add the following required packages to your document preamble:
+ 
+
+\begin{table}[!h]
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l|l|l|l|l|l}
+\hline
+Variable       & original variable name & \begin{tabular}[c]{@{}l@{}}example of the \\ variable content\end{tabular}                           & new variables                                                                     & \begin{tabular}[c]{@{}l@{}}new \\ variable\\  value\end{tabular} & note                                                                                                                                                              \\ \hline
+Trip distances & KAfstR                 & \begin{tabular}[c]{@{}l@{}}"5,0 tot 7,5 km"\\ "50 km of meer"\\ "Geen rit in Nederland"\end{tabular} & \begin{tabular}[c]{@{}l@{}}KAf\_low\\ KAf\_mean\\ KAf\_high\end{tabular} & \begin{tabular}[c]{@{}l@{}}5\\ 6.25\\ 7\end{tabular}             & \begin{tabular}[c]{@{}l@{}}"geen rit in\\  Nederland" \\ means the trip \\ is not in the \\ Netherlands \\ and is not \\ considered \\ in this study\end{tabular} \\ \hline
+Income         &                        &                                                                                                      &                                                                                   &                                                                  &                                                                                                                                                                   \\ \hline
+Age            &                        &                                                                                                      &                                                                                   &                                                                  &                                                                                                                                                                   \\ \hline
+...            &                        &                                                                                                      &                                                                                   &                                                                  &                                                                                                                                                                   \\ \hline
+\end{tabular}%
+}
+\label{preprocess}
+\end{table}
+ 
+\subsubsection{Probabilistic components}
+The details of generating the components that are probabilistic are given below. %The model includes a built-in dataset of the Dutch national microcensus data called OViN. A description of the dataset is seen in \cref{sec:case}.
+
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \item
@@ -236,16 +257,9 @@ This section describes the details of generating the components that are probabi
   0.6 for biking, 0.1 for taking a bus or car and 0 for others),
   according to which a travel mode is sampled in each simulation. The
   commuting routes are queried from OpenStreetMaps.
-
-  Note: {[}How is the train route calculated? If an agent (person) takes
-  a train, it is assumed he/she will firstly walk or cycle to the
-  nearest train station, and get off at the train station closest to the
-  destination location. (\emph{to be considered}). I intend to firstly
-  model within the Utrecht city, so all the destinations should be
-  constrained to a certain distance, therefore the mode: train has a
-  very small probability. This model may also be remove, then in
-  implementation i can simply replace train with autovehicles{]} .
 \item
+
+
   Implementation:
 
   Population group implemented are: school student (U17) , University
@@ -262,6 +276,7 @@ This section describes the details of generating the components that are probabi
 
   \textbf{Destination location selection:}
 \end{enumerate}
+
 
 \begin{itemize}
 \item
@@ -295,7 +310,9 @@ This section describes the details of generating the components that are probabi
   students (Uni), PW, FW. 
 \end{itemize}
 
-\subsection{Activity modeling using Ovin}
+
+\section{Study case: activity modeling using the Dutch national microcensus data}
+\label{sec:case}
 The example below shows how we model the profile group: school student (U17). The activities considered are 1) going to school, 2) staying at school, 3) going back home, 4) going to a sport center, 5) going back home.  
 
 
@@ -408,7 +425,7 @@ exposure\_agent = exposure\_activity /time\_of\_all\_activities
 \end{algorithm}
 
 
-\section{Result}
+\subsection{Result}
 \label{sec:result}
 
 \subsubsection{Annually aggregated hourly prediction of NO$_2$}
@@ -432,18 +449,20 @@ A example of exposure assessed using the model, for one of the activities: home 
     \label{sims}
 \end{figure}
 
+
+\Cref{expmap} shows the exposure assessed for 49 students from the sub-population group "university students", where we know their home and collage/university locations. It can be observed that high exposures do not necessarily occur for people with high concentrations on home locations.
 \begin{figure}[h]
     \centering
-    \includegraphics[width=8cm]{figure/exp49Utrecht.png}
-    \caption{Exposure assessed for the population group "University students", it can be observed that high exposures do not necessarily occur for people with high concentrations on home locations. Background: annual mean NO$_2$ predictions.}
-    \label{sims}
+    \includegraphics[width=8cm]{figure/utschoolmean2.pdf}
+    \caption{Exposure assessed for the population group "University students", using the mean of all the iterations.  Background: annual mean NO$_2$ predictions for 2017, calculated by taking the average of all the annual hourly NO2 predictions.}
+    \label{expmap}
 \end{figure}
 
 
 
 \section{Discussion}
 \label{sec:dis}
-Trains are an important traveling tool for the population group full-time workers, half-time workers, and university students \cref{Uni_mode_dist}, which is the reason that we may implement the "travel by train" scenario. It is more complicated than other scenarios(as described in the section "Means of commuting" above). 
+
 \begin{figure}[!h]
     \centering
     \includegraphics[width=8cm]{figure/ditance_vs_transmean_Uni.png}
@@ -451,6 +470,22 @@ Trains are an important traveling tool for the population group full-time worker
     \label{Uni_mode_dist}
 \end{figure}
 
+A major improvement of this work compared to recent activity-based exposure assessment models \citep{lu2019activity} is that it proposes the location and schedule simulation algorithms being explicitly basing on the probability distributions of the travel mean and maximum travel range of different population groups. Also, the departure times, free time activities, and the time for starting the free-time activities can all be sampled from a specific probability distribution. These greatly reduce the uncertainty in the activity simulation in general and for different population groups, which make it more suitable to be used in health studies and risk assessment. Compared to the proposed model, the framework of \citep{lu2019activity} consists of a complete random destination sampling procedure, a static activity schedule, and assumes one travel mode for all the individuals. 
+
+
+The exposure calculation model iterate over each person and then aggregate the air pollution concentrations over the route of each activity of the person (with the indoor-outdoor ratio accounted). It is suitable for a relatively small population calculation. For a population larger than the number of time steps, an approach that iterate over each time step might be more efficient.  
+%The model simulation for routes and schedules is fast, the only costly function is the nearest point searching. %
+
+Our model relies on the distribution of the variables of travel behaviours and is therefore flexible and scalable as long as the data supports. It is flexible as it can potentially include any variable which influence the travel behaviour. For example, the probability of selecting a travel mean could be estimated using the relationships with other variables such as if the area is rural or urban, or the weather conditions, additional to what has been shown in our study case (based on e.g. age or if a person is a student or worker). The model is scalable means the model can be applied to any areas as long as the mobility information at the microcensus data level is available for the area. By design, the model focuses on land travel behaviour, i.e. we don't consider taking flight or long-distance ferries. The current model consider travel by train the same as travel by autovechicles (e.g. car, bus), in future we aim at a more sophisticated design for the train profile. 
+ % Note: How is the train route calculated? If an agent (person) takes
+  %a train, it is assumed he/she will firstly walk or cycle to the
+  %nearest train station, and get off at the train station closest to the
+  %destination location. (\emph{to be considered}). I intend to firstly
+  %model within the Utrecht city, so all the destinations should be
+  %constrained to a certain distance, therefore the mode: train has a
+  %very small probability. This model may also be remove, then in
+  %implementation i can simply replace train with autovehicles  .
+    
 \section{Conclusion}
 \label{sec:con}
 
