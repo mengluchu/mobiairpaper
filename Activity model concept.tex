@@ -13,7 +13,7 @@
 
 \usepackage{amssymb,amsmath}
 \usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
+%\usepackage{fixltx2e} % provides \textsubscript
 \ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
@@ -102,7 +102,7 @@ With this novel space-time activity model as the core component, we develop an a
 
 
 
-We follow the ODD (Overview, Design concepts, and Details) protocol \citep[][page 37,]{railsback2019agent} to describe our agent-based model (\cref{sec:model}), which follows with the exposure assessment model (\cref{sec:exp}). Then, we demonstrate the modelling process for exposure assessment in a study case (\cref{sec:case}). The activity model is implemented with the Dutch national microcensus data and the exposure is assessed in the Dutch city of Utrecht, for the population group university student.  %\Cref{sec:result} shows the results in our study case. \Cref{sec:dis} discuss our models and the results. \Cref{sec:con} closes with a conclusion.
+We follow the ODD (Overview, Design concepts, and Details) protocol \citep[][page 37,]{railsback2019agent} to describe our agent-based model. Then, we show how the agent-based model is uses in our exposure assessment model and give an introduction to the exposure assessment model. We demonstrate the modelling process for exposure assessment in a study case. The activity model is implemented with the Dutch national micro-census data and the exposure is assessed in the Dutch city of Utrecht, for the population group university student.  %\Cref{sec:result} shows the results in our study case. \Cref{sec:dis} discuss our models and the results. \Cref{sec:con} closes with a conclusion.
 
 
 \section{Model overview and design concepts }
@@ -152,7 +152,7 @@ The concept is to simulate personal space-time activities basing on probability 
 The input of the activity model consists of 1) home locations to estimate, 2) all the possible destination locations for each destination type (e.g. all the work locations, all the school locations), and 3) the mobility survey. Alternatively, the mobility survey can be replaced by predefined probability distribution or probability distribution tables derived from the mobility survey for different population groups. In our demonstration example, we use a table for the probability each travel mode is taken for different distances and for different population groups and travel purposes, and a table for the distributions of the travel distances for each population groups.
  
 
-The output of the activity model consists of activity schedules and corresponding spatial locations (including tracks) for each iteration and each individual. The activity schedule consists of, for each trip, a start time, an end time, the travel mean, the duration, as well as the activity name and a corresponding code (activity\_code in \cref{tab:sche}), which separates different free-time activities (described in \cref{exposureassess}) and links the schedule to the exposure assessment. \Cref{tab:sche} shows an example. Along with the spatial locations, the output also stores other properties of trips, including the speed, travel models, duration of a trip, the total number of locations a destination is drawing from.
+The output of the activity model consists of activity schedules and corresponding spatial locations (including geospatial tracks) for each iteration and each individual. The activity schedule consists of, for each trip, a start time, an end time, the travel mode, the duration, as well as the activity name and a corresponding code (activity\_code in \cref{tab:sche}), which separates different free-time activities and links the schedule to the exposure assessment. \Cref{tab:sche} shows an example. Along with the spatial locations, the output also stores other properties of trips, including the speed, travel models, duration of a trip, the total number of locations a destination is drawing from.
 
 \begin{table}[]
 \resizebox{\textwidth}{!}{%
@@ -169,7 +169,7 @@ start\_time & end\_time & activity   & activity\_code & travel\_mean          & 
 19.74       & 23.9      & home       & 1              &                       &     \\ \hline                      
 \end{tabular}%
 }
-\caption{An example of simulated activity schedules. h2w means "home to work", and w2h means "work to home". The "duration" indicates the time that is used for for the activity in seconds. The integer part of the start and end times indicates hours, and the digits indicate minutes in percentage, e.g., 9.89 is at around 9:54 am (54 = 89*0.6). }
+\caption{An example of simulated activity schedules. "h2w" means "home to work", and "w2h" means "work to home". The "duration" indicates the time that is used for for the activity in seconds. The integer part of the start and end times indicates hours, and the digits indicate minutes in percentage, e.g., 9.89 is at around 9:54 am (54 = 89*0.6). }
 \label{tab:sche}
 \end{table}
 
@@ -180,7 +180,7 @@ start\_time & end\_time & activity   & activity\_code & travel\_mean          & 
 
 
 \subsubsection{Routing} 
-Based on the transportation mode, the travel routes are queried from road networks constructed using the Python package OSMnx \cite{boeing2017osmnx}. The road network processes routes from OpenStreetMaps \citep{osmdata} into a network and removes the redundant nodes. This reduces the dataset size and accelerate route querying. There are three road types: "auto-vehicle", "bike", and "walk". The road network consists of an attribute travel time. For the travel model "auto-vehicle", the travel time is calculated in OSMnx, for the travel model "bicycle" and "on foot", the speed is assumed to be constant and can be specified by user, by default the speeds are set to 14 km/hr and 5 km/hr for bicycling and walking respectively. This allows selecting routes either based on the shortest distance or the shortest travel time. By default, we select a route based on the shortest travel time.  
+Based on the transportation mode, the travel routes are queried from road networks constructed using the Python package OSMnx \citep{boeing2017osmnx}. The road network processes routes from OpenStreetMaps \citep{osmdata} into a network and removes the redundant nodes \citep{boeing2017osmnx}. This reduces the dataset size and accelerate route querying. There are three road types: "auto-vehicle", "bike", and "walk". The road network consists of an attribute travel time. For the travel model "auto-vehicle", the travel time is calculated in OSMnx, for the travel model "bicycle" and "on foot", the speed is assumed to be constant and can be specified by user, by default the speeds are set to 14 km/hr and 5 km/hr for bicycling and walking respectively. This allows selecting routes either based on the shortest distance or the shortest travel time. By default, we select a route based on the shortest travel time.  
 
 \section{Exposure assessment model}
 \label{sec:exp}
@@ -224,7 +224,7 @@ The exposure at home and at work are calculated as the air pollution concentrati
 
 \section{Study case: activity modeling using the Dutch national microcensus data}
 
-We demonstrate our model by simulating the exposure for the population group "university students" in Utrecht. The probability of travel mode and maximum travel range are derived from the Dutch national travel survey, OViN (2010 - 2017, followed by OVG and MON)). OViN is collected by Statistics Netherlands (in Dutch: Centraal Bureau voor de Statistiek - CBS) for one-day trip-based diary. It consists of 0.3\% of the Dutch population. We parse the text in the original dataset to extract the range of the data and calculate a mean of the data range (\cref{preprocess}). 
+We demonstrate our model by simulating the exposure for the population group "university students" in Utrecht. The probability of travel mode and maximum travel range are derived from the Dutch national travel survey, OViN (2010 - 2017, followed by OVG and MON)). OViN is collected by Statistics Netherlands (in Dutch: Centraal Bureau voor de Statistiek - CBS) for one-day trip-based diary. It consists of 0.3\% of the Dutch population. We parse the text in the original dataset to extract the range of the data and calculate a mean of the data range. 
 
 We simulate for the 49 university students who participated in the OViN survey and live in Utrecht at the time. The students are assumed to go to a university or college in the city during day-time and do some free-time activities (including staying at home) in the evening, a while after returning home. The departure time of going to the university of college is sampled from a Gaussian distribution with mean 9 (for 9 am) and standard deviation 1 (for 1 hour). The Departure time of leaving the university or college is sampled from a Gaussian distribution with mean 17 (for 5 pm) and standard deviation 1. All the university and college locations queried from OpenStreetMaps are used for all the destination locations. 
  
@@ -269,7 +269,7 @@ The destination location is determined in the following steps:
 Now we have the home location and the destination (i.e. sport centre, school) locations, the second step is to choose the transportation mode based on the trip distance. 
 
 \begin{itemize}
-    \item Step 1: regroup transportation means and the travel distance range. \\ We regrouped the transportation means to walk, bicycle and auto-vehicle, which include all the other transportation vehicles (bus, tram, car,...). We regrouped the travel distance range as shown in \cref{stu_mode_dist}. 
+    \item Step 1: regroup transportation means and the travel distance range. \\ We regrouped the transportation means to walk, bicycle and auto-vehicle, which include all the other transportation vehicles (bus, tram, car,...). We regrouped the travel distance range as shown in \cref{stu_work_hist}. 
     
     \item Step 2: calculate the probabilities of the transportation means within each travel distance range. \\ we count for each travel distance range the incidence of each transportation mean, and divided by the total incidence of each travel distance range to obtain the probability (of the transportation mean in each travel distance range). The travel distance ranges are empirically defined in this study case and can be altered by users. 
     
@@ -321,7 +321,7 @@ Now we have the home location and the destination (i.e. sport centre, school) lo
 \end{figure}
 %
 
-We used the same official ground station measurements of Germany and Netherlands (all together 482 stations) to predict annual hourly NO$_2$ concentrations in Utrecht, for the year 2017. The geospatial predictors include road densities in different buffers (100, 300, 500, 1000, 3000, 5000 m) and of highways, primary roads, local roads from OpenStreetMaps, monthly wind speed and temperature of 2017 from ERA5-Land re-analysis, elevation of 90 m resolution, population from world pop, earth nightlight, radiation, and Sentinel 5p L3 product column density of 2018 (10 km resolution). 
+We used the same official ground station measurements of Germany and Netherlands (all together 482 stations, with 66 stations in the Netherlands and 416 stations in Germany) to predict annual hourly NO$_2$ concentrations in Utrecht, for the year 2017. The geospatial predictors include road densities in different buffers (100, 300, 500, 1000, 3000, 5000 m) and of highways, primary roads, local roads from OpenStreetMaps, monthly wind speed and temperature of 2017 from ERA5-Land re-analysis, elevation of 90 m resolution, population from world pop, earth nightlight, radiation, and Sentinel 5p L3 product column density of 2018 (10 km resolution). 
 
 The ensemble tree algorithm LightGBM \citep{ke2017lightgbm} is used for prediction. LightGBM is a tree-based gradient boosting framework, which uses histogram-based algorithms to bin the continuous values of each feature. The LightGBM obtained similar RMSE compared to XGBoost \citep{chen2015xgboost}, with optimised hyper-parameters. Different prediction patterns also affect the exposure assessment results \citep{yoo2021impact,yoo2015geospatial}, but is not the focus of this study. %We chose the algorithm based on our previous studies comparing the RMSE (Root Mean Squared Error) with the results of XGBoost \citep{chen2015xgboost}, with optimised hyper-parameters. We found the LightGBM obtained a slightly higher prediction accuracy (about 5\% lower in RMSE).
  
@@ -333,13 +333,13 @@ The ensemble tree algorithm LightGBM \citep{ke2017lightgbm} is used for predicti
 
 \begin{figure}[h]
     \centering
-        \includegraphics[scale = 0.3]{figure/prediUt.png}
+        \includegraphics[scale = 0.35]{figure/prediUt.png}
     \caption{Annually aggregated hourly NO$_2$ ($\mu g / m^3$) predicted for Utrecht.}
     \label{con}
 \end{figure}
 
 
-\Cref{sims} shows an example of exposure assessed in several iterations for a subset of university students in Utrecht (\cref{sims}) who participated in the OViN survey. The exposure assessed using true location is shown for comparison. It can be observed that the exposure calculated using the proposed model is close to the exposure calculated using the true location. The exposure assessed in multiple iterations provide us with an uncertainty measure. We only for three iterations for visualisation purposes, in reality, more iterations lead to a more accurate uncertainty estimation, as well as the exposure prediction (e.g. by taking the mean). 
+\Cref{sims} shows an example of exposure assessed in several iterations for a subset of university students in Utrecht (\cref{sims}) who participated in the OViN survey. The exposure assessed using true location is shown for comparison. It can be observed that the exposure calculated using the proposed model is close to the exposure calculated using the true location. The exposure assessed in multiple iterations provide us with an uncertainty measure. We only ran three iterations for the visualisation purposes, in reality, more iterations lead to a more accurate uncertainty estimation, as well as the exposure prediction (e.g. by taking the mean). 
 
 \begin{figure}[h]
     \centering
@@ -349,12 +349,12 @@ The ensemble tree algorithm LightGBM \citep{ke2017lightgbm} is used for predicti
 \end{figure}
 
 
-\Cref{expmap} shows the exposure assessed using the proposed simulation model for the 49 university students. It can be observed that high exposures do not necessarily occur for people with high concentrations at the front door home locations.
+\Cref{expmap} shows the exposure assessed using the proposed simulation model for the 49 university students, with 11 iterations as recommended in \citep{lu2019activity}. It can be observed that high exposures do not necessarily occur for people with high concentrations at the front door home locations. Note that with university students, the uncertainty in choosing the destination location is relatively low compared to for example full-time workers, as the number of university or colleagues in a city is limited. 
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=8cm]{figure/utschoolmean2.pdf}
-    \caption{Exposure assessed for the population group "University students", using the mean of all the iterations.  Background: annual mean NO$_2$ predictions for 2017, calculated by taking the average of all the annual hourly NO2 predictions.}
+    \caption{Exposure assessed for the population group university students, using the mean of the 11 iterations.  Background: annual mean NO$_2$ prediction for 2017, calculated by taking the average of all the annual hourly NO$_2$ predictions.}
     \label{expmap}
 \end{figure}
 
@@ -368,14 +368,14 @@ The ensemble tree algorithm LightGBM \citep{ke2017lightgbm} is used for predicti
 
 
 
-We have focused on describing and demonstrating of our space-time activity model, as well as how it is used together with the air prediction component and the exposure calculation component for exposure assessment. The Dutch microcensus data is used to parameterise our model and a study case is shown for the assessment of NO$_2$ exposed by university students in Utrecht. The differences between using the front-door location concentrations and our simulation model, as well as using the real locations, can be clearly visualised. 
+We have focused on describing and demonstrating of our space-time activity model, as well as how it is used together with the air prediction and the exposure calculation components for exposure assessment. The Dutch micro-census data is used to parameterise our model and a study case is shown for the assessment of NO$_2$ exposed by university students in Utrecht. The differences between using the front-door location concentrations and our simulation model, as well as using the real locations, are clearly visualised. 
 
 A major improvement of our activity model compared to recent activity-based exposure assessment models \citep{lu2019activity} is that it proposes the location and schedule simulation algorithms being explicitly basing on the probability distributions of the variables (e.g. the travel mode and the maximum travel range) that determines the activity patterns of different population groups. Also, the departure times, free time activities, and the time for starting the free-time activities can all be sampled from a specific probability distribution. These greatly reduce the uncertainty in the activity simulation in general and for different population groups, which make it more suitable to be used in health studies and risk assessment. Compared to the proposed model, the framework of \citep{lu2019activity} consists of a complete random destination sampling procedure, a static activity schedule, and assumes one travel mode for all the simulation iterations. We believe the the proposed model does not sacrifice the generality with a much confined sampling space and more stochastic components. 
 
 
 %The model simulation for routes and schedules is fast, the only costly function is the nearest point searching. %
 
-Our model relies on the distribution of the variables of travel behaviours and is therefore flexible and scalable as long as the data supports. It is flexible as it can potentially include any variable which influence the travel behaviour. For example, the probability of selecting a travel mean could be estimated using the relationships with other variables such as if the area is rural or urban, or the weather conditions, the emission regulations or fuel price, additional to what has been shown in our study case (based on e.g. age or if a person is a student or worker). The model is scalable means the model can be applied to any areas as long as the mobility information at the microcensus data level is available for the area. By design, the model focuses on land travel behaviour, i.e. we don't consider taking flight or long-distance ferries. The current model consider travel by train the same as travel by autovechicles (e.g. car, bus), in future we aim at a more sophisticated design for the train profile. 
+Our model relies on the distribution of the variables of travel behaviours and is therefore flexible and scalable. It is flexible as it can potentially include any variables  influencing the travel behaviour. For example, the probability of selecting a travel mean could be estimated using the relationships with other variables such as a classification map indicating the rural, suburban, and urban land-use, the weather conditions, the emission regulations, or fuel price, additional to the characters of the individual as has been shown in our study case (based on e.g. age or if a person is a student or a worker). The model is scalable means the model can be applied to any areas as long as the mobility information (e.g. at the micro-census data level) is sufficient for the area. By design, the model focuses on land travel behaviour, i.e. we don't consider taking flight or long-distance ferries. The current model consider travel by train the same as travel by auto-vehicles (e.g. car, bus), in future we aim at a more sophisticated design for the train profile. 
 
  % Note: How is the train route calculated? If an agent (person) takes
   %a train, it is assumed he/she will firstly walk or cycle to the
@@ -386,17 +386,17 @@ Our model relies on the distribution of the variables of travel behaviours and i
   %very small probability. This model may also be remove, then in
   %implementation i can simply replace train with autovehicles  .
   
-  In choosing the travel mode, we used Euclidean distance, and therefore may be more likely to choose a lower-speed traffic mode (e.g. on foot than by bicycle). The reason for using Euclidean distance instead of the road distance is to avoid additional route querying, which takes longer computation time. Commonly, the Euclidean distance becomes closer to the road distance with increased travel distance. As the model is developed to simulate for a large population, multiple populations, and multiple iterations, the computational cost is a concern.
+  In choosing the travel mode, we used Euclidean distance between the departure and arrival locations, and therefore may be more likely to choose a lower-speed traffic mode (e.g. on foot than by bicycle). The reason for using Euclidean distance instead of the road distance is to avoid additional route querying, which takes longer computation time. Commonly, the Euclidean distance becomes closer to the road distance with increased travel distance. As the model is developed to simulate for a large population, multiple populations, and multiple iterations, the computational cost is a concern.
  
     
-The exposure calculation model iterates over each person and then aggregate the air pollution concentrations over the route of each activity of the person (with the indoor-outdoor ratio accounted). It is highly parallelisable as the exposure calculation is independent for each individual. Note the individuals could still interact to each other and with the environment when simulating the route and the schedules. Another way of calculating the exposure is to iterate over each time step, i.e., for each time step, the exposure of the entire population is calculated. This way can be parallelised for each time step instead of each individual. For a population larger than the number of time steps, this way may be beneficial.  
+The exposure calculation model iterates over each person and then aggregate the air pollution concentrations over the route of each activity of the person (with the indoor-outdoor ratio accounted). It is highly parallelisable as the exposure calculation is independent for each individual. Note the individuals could still interact to each other and with the environment when simulating the route and the schedules. Another way of calculating the exposure is to iterate over each time step, i.e., for each time step, the exposure of the entire population is calculated. This way can be parallelised for each time step instead of each individual. For a population larger than the number of time steps, this way may provide an efficient alternative.  
 
-The modelling concept can potentially be applied to other exposure assessment tasks, for example Ozone and Particulate Matters. The model is easy to use and be extended to enable different interactions and complex scenarios. As the probability distributions are mainly derived statistically, diverse data sources could be easily assimilated. Sophisticated statistical modelling can be used to predict the probability density or mass functions, with uncertainty quantified and integrated in the exposure assessment model. The  interdisciplinary contributions are also made easier as the statistical analysis could be independently carried out without being able to use the entire exposure assessment model. 
+The modelling concept can potentially be applied to other exposure assessment tasks, for example Ozone and Particulate Matters. The model is easy to use and be extended to enable different interactions and complex scenarios. As the probability distributions are mainly derived statistically, diverse data sources could be easily assimilated. Sophisticated statistical modelling can be used to predict the probability density or mass functions, with uncertainty quantified and integrated in the exposure assessment model. The interdisciplinary contributions are also facilitated as the statistical analysis could be independently carried out without the knowledge of the entire exposure assessment model. 
 
 \section{Conclusion}
 \label{sec:con}
 
-We developed an activity-based personal exposure assessment model for long-term exposure assessment of different population groups. The core of it is the activity simulation model, the key concept is to repeatedly sample from the probability density function or the probability mass function of variables that determines the activity patterns. The personal exposure is assessed at each iterations to allow uncertainty quantification and improve the prediction. The probability densities can be derived from any mobility data, which makes it easily scalable. We used the Dutch national microcensus survey to demonstrate our model and showed the exposure assessed using our model with simulated and known destination locations for university (and colleague) students. 
+We developed an activity-based personal exposure assessment model for long-term exposure assessment of different population groups. The core of it is an agent-based activity simulation model, the key concept of it is to repeatedly sample from a probability density function or a probability mass function of the variable (e.g. travel mode) that determines the activity patterns. The personal exposure is repeatedly assessed in multiple iterations to allow uncertainty quantification and improve the prediction. The probability density or mass functions can be derived from any mobility data, or a combination of them, with any predictive model, which make the model extensive and easily scalable spatially. We used the Dutch national micro-census survey to demonstrate our model and showed the exposure assessed using our model with simulated and known destination locations for the population group university (and colleague) students. The result shows the differences between modelling and not modelling space-time activities in exposure assessment, as well as how the uncertainty in exposure could be quantified with our model. 
 
 
 \newpage
